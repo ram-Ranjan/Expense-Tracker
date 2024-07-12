@@ -37,9 +37,10 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
 
         axios.post(`${base_url}/user/signup`,user)
         .then(user => {
-            alert("User Signed Up successfully!");
+            confirm("User Signed Up successfully!");
             console.log('User Signed Up')
             document.getElementById('signupForm').reset();
+
         })
         .catch(err => 
             { alert("User Sign up Failed:"+err.response.data.error)});

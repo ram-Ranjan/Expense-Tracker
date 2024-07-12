@@ -30,9 +30,12 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
 
         axios.post(`${base_url}/user/login`,user)
         .then(response => {
-            alert("User Logged In successfully!");
-            console.log('User Log In')
-            document.getElementById('loginForm').reset();
+           const flag = confirm("User Logged In successfully!");
+           
+           if(flag){
+            window.location.href="index.html"
+           }
+        
         })
         .catch(err => 
             { const errorMessage = err.response?.data?.error || 'An unknown error occurred';

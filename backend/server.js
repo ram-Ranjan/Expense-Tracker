@@ -11,6 +11,9 @@ app.use(express.json());
 const userRouter=require('./routes/userRoutes');
 app.use('/api/user',userRouter);
 
+const expenseRouter = require('./routes/expenseRoutes');
+app.use('/api/expense',expenseRouter);
+
 const port =  3000;
 sequelize.
     sync({alter:true})
