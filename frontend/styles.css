@@ -60,6 +60,12 @@ button{
 button:hover {
     background-color: #0056b3;
 }
+a{
+    font-weight: 600;
+}
+a:hover{
+    color:#dc3545;
+}
 .error {
     color: #dc3545;
     font-size: 0.875rem;
