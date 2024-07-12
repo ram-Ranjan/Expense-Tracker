@@ -1,3 +1,7 @@
+
+const base_url ="http://localhost:3000/api"
+
+
 document.getElementById('signupForm').addEventListener('submit', function(event) {
     event.preventDefault();
     
@@ -29,6 +33,18 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
 
     if (valid) {
         // If all validations pass, you can submit the form
-        this.submit();
+        const user ={username,email,password}
+
+        axios.post(`${base_url}/user`,user)
+        .then(user => {
+            alert("User Signed Up successfully!");
+            console.log('User Signed Up')
+            document.getElementById('signupForm').reset();
+        })
+        .catch(err => 
+            { alert("User Sign up Failed:"+err.response.data.error)});
     }
+   
+
+
 });
