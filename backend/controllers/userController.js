@@ -30,7 +30,7 @@ exports.loginUser = async (req,res) => {
             return res.status(400).json({ error: "User Not Found with given email" });
         }
         if(existingUser.password !== password){
-            return res.status(400).json({error:"Incorrect Password"})
+            return res.status(401).json({error:"Incorrect Password"})
         }
         res.status(200).json({ message: "Login successful", userId: existingUser.id });
     }
