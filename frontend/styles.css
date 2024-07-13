@@ -142,7 +142,7 @@ a:hover {
 }
 
 /* Responsive table */
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 760px) {
     .table thead {
         display: none;
     }
@@ -173,6 +173,7 @@ a:hover {
         text-align: left;
         font-weight: bold;
     }
+  
 }
 
 /* List section styles */
@@ -190,10 +191,10 @@ a:hover {
     .content-wrapper {
         display: flex;
         justify-content: space-between;
-        max-width: 1000px;
+        max-width: 1200px;
     }
 
     #expenseForm {
-        width: 45%;
+        width: 55%;
     }
 }
