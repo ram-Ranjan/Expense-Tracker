@@ -1,7 +1,9 @@
 
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = `Ranjan's_secret`;
 exports.signupUser =async (req,res,next) =>{
     try {
         const { username, email, password } = req.body;
@@ -34,7 +36,13 @@ exports.loginUser = async (req,res) => {
         const isMatch = await bcrypt.compare(password,existingUser.password)
        
         if(isMatch){
-            res.status(200).json({ message: "Login successful", userId: existingUser.id });
+            const token = jwt.sign(
+                { id: existingUser.id, email: existingUser.email },
+                JWT_SECRET,
+                { expiresIn: '1h' }
+            );
+
+            res.status(200).json({ message: "Login successful", token });
         }
         else{
        return res.status(401).json({error:"Incorrect Password"})

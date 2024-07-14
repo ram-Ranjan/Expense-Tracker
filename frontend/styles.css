@@ -78,6 +78,21 @@ button {
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-bottom: 4px;
+}
+
+.logout{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    background-color: #e25d6a;
+}
+.logout:hover{
+    background-color: #ff0019;
+
 }
 
 button:hover {
@@ -173,6 +188,10 @@ a:hover {
         text-align: left;
         font-weight: bold;
     }
+    /* .logout{
+        top:5rem;
+      
+    } */
   
 }
 

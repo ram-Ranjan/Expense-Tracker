@@ -1,5 +1,11 @@
 const base_url = "http://localhost:3000/api";
 
+function getAuthHeader() {
+    const token = localStorage.getItem('token');
+    return { headers: { Authorization: `Bearer ${token}` } };
+}
+
+
 document.getElementById('expenseForm').addEventListener('submit', function(event) {
     event.preventDefault();
     
@@ -19,7 +25,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
     }
 });
     function addExpense(expense) {
-        axios.post(`${base_url}/expense`, expense)
+        axios.post(`${base_url}/expense`, expense , getAuthHeader())
             .then(response => {
                 console.log('Server response:', response.data);
                 alert("Expense added successfully!");
@@ -33,7 +39,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
     }
     
     function updateExpense(expenseId, expense) {
-        axios.put(`${base_url}/expense/${expenseId}`, expense)
+        axios.put(`${base_url}/expense/${expenseId}`, expense, getAuthHeader())
             .then(response => {
                 console.log('Server response:', response.data);
                 alert("Expense updated successfully!");
@@ -50,7 +56,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
     
     function deleteExpense(expenseId) {
         if (confirm('Are you sure you want to delete this expense?')) {
-            axios.delete(`${base_url}/expense/${expenseId}`)
+            axios.delete(`${base_url}/expense/${expenseId}`,getAuthHeader())
                 .then(response => {
                     console.log('Server response:', response.data);
                     alert("Expense deleted successfully!");
@@ -64,8 +70,9 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
     }
     
     function fetchExpenses() {
-        axios.get(`${base_url}/expense`)
+        axios.get(`${base_url}/expense`, getAuthHeader())
             .then(response => {
+
                 const expenses = response.data;
                 const expenseList = document.getElementById('expenseList');
                 expenseList.innerHTML = ''; // Clear existing list
@@ -74,7 +81,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${expense.category}</td>
-                        <td>$${expense.amount}</td>
+                        <td>&#8377;${expense.amount}</td>
                         <td>${expense.description}</td>
                         <td>
                             <button class="edit-btn" data-id="${expense.expenseId}">Edit</button>
@@ -93,13 +100,18 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                 });
             })
             .catch(err => {
+                document.querySelector('main').innerHTML=`
+                <h1>404 NOT FOUND</h1><BR><BR>
+                <h2>Page Not Found</h2>
+                `;
+
                 console.error("Failed to fetch expenses:", err);
             });
     }
     
     function handleEdit(event) {
         const expenseId = event.target.dataset.id;
-        axios.get(`${base_url}/expense/${expenseId}`)
+        axios.get(`${base_url}/expense/${expenseId}`,getAuthHeader())
             .then(response => {
                 const expense = response.data;
                 document.getElementById('category').value = expense.category;
@@ -119,4 +131,10 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
         deleteExpense(expenseId);
     }
 
+    document.querySelector('.logout').addEventListener('click', function() {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+    }); 
+
     document.addEventListener('DOMContentLoaded', fetchExpenses);
+

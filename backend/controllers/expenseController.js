@@ -7,10 +7,13 @@ exports.addExpense = async (req, res) => {
   
       console.log('Received expense data:', { category, amount, description });
 
+
+
       const newExpense = await Expense.create({
         category,
         amount,
         description,
+        userId: req.user.id
       });
   
       console.log('New expense created:', newExpense.toJSON());
@@ -26,6 +29,7 @@ exports.addExpense = async (req, res) => {
     try {
   
       const expenses = await Expense.findAll({
+        where: { userId: req.user.id },
         order: [['createdAt', 'DESC']]
       });
   
@@ -40,7 +44,12 @@ exports.addExpense = async (req, res) => {
  
 exports.getExpense = async (req, res) => {
   try {
-    const expense = await Expense.findByPk(req.params.expenseId);
+    const expense = await Expense.findOne({
+      where: {
+          expenseId: req.params.expenseId,
+          userId: req.user.id // Ensure the expense belongs to the authenticated user
+      }
+  });
     if (expense) {
       res.status(200).json(expense);
     } else {
@@ -57,10 +66,17 @@ exports.updateExpense = async (req, res) => {
     const { category, amount, description } = req.body;
     const [updated] = await Expense.update(
       { category, amount, description },
-      { where: { expenseId: req.params.expenseId } }
+      { where: { expenseId: req.params.expenseId,
+        userId: req.user.id 
+       } }
     );
     if (updated) {
-      const updatedExpense = await Expense.findByPk(req.params.expenseId);
+      const updatedExpense = await Expense.findOne({
+        where: {
+            expenseId: req.params.expenseId,
+            userId: req.user.id
+        }
+    });
       res.status(200).json(updatedExpense);
     } else {
       res.status(404).json({ message: 'Expense not found' });
@@ -74,7 +90,8 @@ exports.updateExpense = async (req, res) => {
 exports.deleteExpense = async (req, res) => {
   try {
     console.log('Deleting expense with ID:', req.params.expenseId);
-    const deleted = await Expense.destroy({ where: { expenseId: req.params.expenseId } });
+    const deleted = await Expense.destroy({ where: { expenseId: req.params.expenseId,
+      userId: req.user.id } });
     if (deleted) {
       res.status(204).send();
     } else {

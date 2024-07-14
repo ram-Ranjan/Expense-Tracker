@@ -30,11 +30,12 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
 
         axios.post(`${base_url}/user/login`,user)
         .then(response => {
-           const flag = confirm("User Logged In successfully!");
+
+            localStorage.setItem('token', response.data.token);
+           alert("User Logged In successfully!");
            
-           if(flag){
             window.location.href="index.html"
-           }
+           
         
         })
         .catch(err => 

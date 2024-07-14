@@ -14,6 +14,12 @@ app.use('/api/user',userRouter);
 const expenseRouter = require('./routes/expenseRoutes');
 app.use('/api/expense',expenseRouter);
 
+ const User = require('./models/user');
+ const Expense = require('./models/expense')
+
+ User.hasMany(Expense);
+ Expense.belongsTo(User);
+
 const port =  3000;
 sequelize.
     sync({alter:true})
