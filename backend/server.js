@@ -1,3 +1,9 @@
+
+require('dotenv').config();
+console.log('Environment variables loaded');
+console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID);
+console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET);
+
 const express = require('express');
 const sequelize = require('./config/database');
 
@@ -17,8 +23,16 @@ app.use('/api/expense',expenseRouter);
  const User = require('./models/user');
  const Expense = require('./models/expense')
 
+ const purchaseRouter = require('./routes/purchaseRoutes');
+app.use('/api/purchase',purchaseRouter);
+
+const Order = require('./models/orders');
+
  User.hasMany(Expense);
  Expense.belongsTo(User);
+
+ User.hasMany(Order);
+ Order.belongsTo(User)
 
 const port =  3000;
 sequelize.

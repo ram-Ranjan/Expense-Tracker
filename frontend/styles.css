@@ -95,6 +95,22 @@ button {
 
 }
 
+.rzp-btn{
+    position: relative;
+    bottom: 1rem;
+    left: -35vw;
+    width: auto;
+    margin-top: 2rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    background-color: rgb(255, 231, 93);
+}
+.rzp-btn:hover{
+    background-color: gold;
+    color:rgb(109, 202, 17);
+
+}
+
 button:hover {
     background-color: #0056b3;
 }

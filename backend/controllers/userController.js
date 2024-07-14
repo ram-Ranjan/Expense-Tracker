@@ -52,3 +52,13 @@ exports.loginUser = async (req,res) => {
         return res.status(500).json({ error: "Server error" });
       }
 };
+
+exports.checkPremiumStatus = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.user.id);
+        res.json({ isPremium: user.isPremium });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Something went wrong' });
+    }
+};

@@ -16,16 +16,20 @@ const User = sequelize.define('user',{
     },
     email:{
         type:Datatypes.STRING,
-        allowNull:false,
-        unique:true,
-        validate: {
-            isEmail: true
-          }
+        // allowNull:false,
+        // unique:true,
+        // validate: {
+        //     isEmail: true
+        //   }
     },
     password:{
         type:Datatypes.STRING,
         allowNull:false
-    }
+    },
+    isPremium: {
+        type: Datatypes.BOOLEAN,
+        defaultValue: false
+      }  
 })
 
 module.exports=User;
