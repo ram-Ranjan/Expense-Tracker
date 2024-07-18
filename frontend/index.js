@@ -33,6 +33,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                 // alert("Expense added successfully!");
                 document.getElementById('expenseForm').reset();
                 fetchExpenses();
+                checkPremiumStatus();
             })
             .catch(err => {
                 console.error('Error details:', err.response?.data || err.message);
@@ -49,6 +50,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                 document.getElementById('expenseForm').dataset.editId = '';
                 document.querySelector('button[type="submit"]').textContent = 'Add Expense';
                 fetchExpenses();
+                checkPremiumStatus();
             })
             .catch(err => {
                 console.error('Error details:', err.response?.data || err.message);
@@ -63,6 +65,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                     console.log('Server response:', response.data);
                     // alert("Expense deleted successfully!");
                     fetchExpenses();
+                    checkPremiumStatus();
                 })
                 .catch(err => {
                     console.error('Error details:', err.response?.data || err.message);

@@ -16,19 +16,20 @@ const User = sequelize.define('user',{
     },
     email:{
         type:Datatypes.STRING,
-        // allowNull:false,
-        // unique:true,
-        // validate: {
-        //     isEmail: true
-        //   }
+        allowNull: false,
+        unique: true,
     },
     password:{
         type:Datatypes.STRING,
         allowNull:false
     },
     totalExpense:{
-        type:Datatypes.FLOAT,
-        defaultValue:0
+        type:Datatypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue:0,
+        validate: {
+            min: 0,
+          },
     },
     isPremium: {
         type: Datatypes.BOOLEAN,

@@ -4,9 +4,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Sequelize  = require('sequelize');
 const Expenses = require('../models/expense');
+const sequelize = require('../config/database')
 
 
 exports.signupUser =async (req,res,next) =>{
+    const transaction = await sequelize.transaction()
     try {
         const { username, email, password } = req.body;
 
@@ -17,11 +19,13 @@ exports.signupUser =async (req,res,next) =>{
 
         const hashedPassword =await bcrypt.hash(password, 10); 
 
-        const newUser = await User.create({ username, email, password: hashedPassword});
+        const newUser = await User.create({ username, email, password: hashedPassword},transaction);
         console.log('User Signed Up');
+      await  transaction.commit();
         res.status(201).json({ message: 'User created successfully', userId: newUser.id });
           }
     catch{
+       await transaction.rollback();
         console.error('Error:', err.message);
         res.status(500).json({ error: 'Server error' });
  
@@ -54,7 +58,8 @@ exports.loginUser = async (req,res) => {
 };
 
 exports.checkPremiumStatus = async (req, res) => {
-    res.json({ isPremium: req.user.isPremium });
+    const user =await User.findByPk(req.user.id);
+    res.json({ isPremium: user.isPremium });
 
 };
 
