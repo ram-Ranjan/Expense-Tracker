@@ -2,8 +2,11 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Sequelize  = require('sequelize');
+const Expenses = require('../models/expense');
 
-const JWT_SECRET = `Ranjan's_secret`;
+
+const JWT_SECRET = process.env.TOKEN_SECRET;
 exports.signupUser =async (req,res,next) =>{
     try {
         const { username, email, password } = req.body;
@@ -37,7 +40,7 @@ exports.loginUser = async (req,res) => {
        
         if(isMatch){
             const token = jwt.sign(
-                { id: existingUser.id, email: existingUser.email },
+                { id: existingUser.id, email: existingUser.email ,isPremium:existingUser.isPremium},
                 JWT_SECRET,
                 { expiresIn: '1h' }
             );
@@ -55,10 +58,42 @@ exports.loginUser = async (req,res) => {
 
 exports.checkPremiumStatus = async (req, res) => {
     try {
-        const user = await User.findByPk(req.user.id);
-        res.json({ isPremium: user.isPremium });
+       // const user = await User.findByPk(req.user.id);
+        res.json({ isPremium: req.user.isPremium });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Something went wrong' });
     }
+    
 };
+
+exports.getLeaderBoard = async (req,res) => {
+    try{
+       const leaderboard=await User.findAll({
+            attributes:['id',
+                'username',
+              [Sequelize.fn('COALESCE', Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 0), 'totalExpenses']
+            ],           
+            include:[{
+                model: Expenses,
+                attributes:[],
+                required: false
+            }] ,
+            group:['User.id'],
+            order: [[Sequelize.fn('COALESCE', Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 0), 'DESC']],           
+            raw:true
+        });
+        console.log(leaderboard)
+        const leaderboardWithHighlight = leaderboard.map(entry => ({
+            ...entry,
+            isCurrentUser: entry.id === req.user.id
+        }));
+
+        res.json(leaderboardWithHighlight);
+      
+    }
+    catch(error){
+        console.error('Error fetching leaderboard:', error);
+        res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+}

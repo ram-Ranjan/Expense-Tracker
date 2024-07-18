@@ -8,10 +8,9 @@ const userController = require('../controllers/userController');
 router.post('/signup',userController.signupUser);
 
 router.post('/login',userController.loginUser)
-//
 
 router.get('/premiumStatus', authenticateJWT, userController.checkPremiumStatus);
 
-
+router.get('/premium/leaderboard',authenticateJWT,userController.getLeaderBoard)
 
 module.exports=router;

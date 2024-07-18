@@ -1,3 +1,4 @@
+
 const base_url = "http://localhost:3000/api";
 
 function getAuthHeader() {
@@ -171,26 +172,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                 alert('Something went wrong')
             });
     
-            // Simulate a successful payment
-            // const simulatePayment = async () => {
-            //     try {
-            //         const updateResponse = await axios.post(`${base_url}/purchase/updateTransaction`, {
-            //             order_id: response.data.order_id,
-            //             payment_id: 'pay_' + Math.random().toString(36).substr(2, 9), // Generate a random payment ID
-            //         }, getAuthHeader());
-                    
-            //         console.log('Update transaction response:', updateResponse.data);
-            //         alert('You are now a premium user! (Simulated payment)');
-            //         updateUIForPremiumUser();
-            //     } catch (error) {
-            //         console.error('Error updating transaction:', error);
-            //         alert('Simulated payment successful, but failed to update status. Please check server logs.');
-            //     }
-            // };
-    
-            // // Call the simulate payment function instead of opening Razorpay
-            // await simulatePayment();
-    
+
         } catch (error) {
             console.error('Error initiating premium purchase:', error);
             alert('Failed to initiate premium purchase. Please try again.');
@@ -206,7 +188,37 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
         premiumBadge.textContent = 'Premium User';
         premiumBadge.classList.add('premium-badge');
         document.querySelector('header').appendChild(premiumBadge);
+    
+        axios.get(`${base_url}/user/premium/leaderboard`,getAuthHeader())
+        .then(response => {
+            let leaderboardData = response.data;
+            let premiumFeatures =document.getElementById("premium");
+            premiumFeatures.innerHTML=`
+            <h2>Expense Leaderboard</h2>`
+            const table = document.createElement('table');
+            table.innerHTML = `
+            <tr><th>Rank</th>
+            <th>Name</th> 
+            <th>Total Expense</th>
+            </tr>
+           `;
+           leaderboardData.forEach((entry,index) => {
+            const row = table.insertRow();
+            row.innerHTML = `
+            <td>${index+1}</td>
+            <td>${entry.username}</td>
+            <td>${entry.totalExpenses}</td>`;
+            if(entry.isCurrentUser){
+                row.classList.add('highlight');
+            }
+           });
+        premiumFeatures.appendChild(table);
+        })
+        .catch(err => console.log(err));
+       
+       
     }
+
 
 
     function checkPremiumStatus() {
