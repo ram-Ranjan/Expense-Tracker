@@ -10,4 +10,7 @@ router.get('/:expenseId', authenticateJWT, expenseController.getExpense);
 router.put('/:expenseId', authenticateJWT, expenseController.updateExpense);
 router.delete('/:expenseId', authenticateJWT, expenseController.deleteExpense);
 
+
+router.get('/premium/leaderboard',authenticateJWT,expenseController.getLeaderBoard)
+
 module.exports=router;

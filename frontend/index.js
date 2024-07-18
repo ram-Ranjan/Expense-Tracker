@@ -7,6 +7,7 @@ function getAuthHeader() {
 }
 
 
+
 document.getElementById('expenseForm').addEventListener('submit', function(event) {
     event.preventDefault();
     
@@ -155,12 +156,12 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                 //handler function will handle the successful payment
                 "handler": async function(response){
                     await axios.post(`${base_url}/purchase/updateTransactionStatus`,{
-                   order_id:options.order_id,
-                    payment_id: response.razorpay_payment_id,
+                   order_id: options.order_id,
+                   payment_id: response.razorpay_payment_id,
                 },{headers :{"Authorization":`Bearer ${token}`}})   
 
                 alert("You are a Premium User Now")
-                updateUIForPremiumUser();
+                checkPremiumStatus();
             },
             };
 
@@ -183,49 +184,61 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
         // Hide the 'Become Premium' button
         document.querySelector('.rzp-btn').style.display = 'none';
         
-        // You can add more UI changes here, such as showing premium features
-        const premiumBadge = document.createElement('span');
-        premiumBadge.textContent = 'Premium User';
-        premiumBadge.classList.add('premium-badge');
-        document.querySelector('header').appendChild(premiumBadge);
+        // Add premium badge if it doesn't exist
+        if (!document.querySelector('.premium-badge')) {
+            const premiumBadge = document.createElement('span');
+            premiumBadge.textContent = 'Premium User';
+            premiumBadge.classList.add('premium-badge');
+            document.querySelector('header').appendChild(premiumBadge);
+        }
     
-        axios.get(`${base_url}/user/premium/leaderboard`,getAuthHeader())
-        .then(response => {
-            let leaderboardData = response.data;
-            let premiumFeatures =document.getElementById("premium");
-            premiumFeatures.innerHTML=`
-            <h2>Expense Leaderboard</h2>`
-            const table = document.createElement('table');
-            table.innerHTML = `
-            <tr><th>Rank</th>
-            <th>Name</th> 
-            <th>Total Expense</th>
-            </tr>
-           `;
-           leaderboardData.forEach((entry,index) => {
-            const row = table.insertRow();
-            row.innerHTML = `
-            <td>${index+1}</td>
-            <td>${entry.username}</td>
-            <td>${entry.totalExpenses}</td>`;
-            if(entry.isCurrentUser){
-                row.classList.add('highlight');
-            }
-           });
-        premiumFeatures.appendChild(table);
-        })
-        .catch(err => console.log(err));
-       
-       
+        // Fetch and display leaderboard
+        fetchLeaderboard();
     }
 
 
+    function fetchLeaderboard() {
+        axios.get(`${base_url}/expense/premium/leaderboard`, getAuthHeader())
+            .then(response => {
+                let leaderboardData = response.data;
+                let premiumFeatures = document.getElementById("premium");
+                premiumFeatures.innerHTML = `<h2>Expense Leaderboard</h2>`;
+                const table = document.createElement('table');
+                table.innerHTML = `
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th> 
+                    <th>Total Expense</th>
+                </tr>`;
+                leaderboardData.forEach((entry, index) => {
+                    const row = table.insertRow();
+                    row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${entry.username}</td>
+                    <td>₹${entry.totalExpenses}</td>`; // Assuming totalExpense is a number
+                    if (entry.isCurrentUser) {
+                        row.classList.add('highlight');
+                    }
+                });
+                premiumFeatures.appendChild(table);
+            })
+            .catch(err => {
+                console.error('Error fetching leaderboard:', err);
+                document.getElementById("premium").innerHTML = `<p>Failed to load leaderboard. Please try again later.</p>`;
+            });
+    }
 
     function checkPremiumStatus() {
-        axios.get(`${base_url}/user/premiumStatus`, getAuthHeader())
+        return axios.get(`${base_url}/user/premium/premiumStatus`, getAuthHeader())
             .then(response => {
                 if (response.data.isPremium) {
                     updateUIForPremiumUser();
+                } else {
+                    // Ensure premium features are hidden for non-premium users
+                    document.querySelector('.rzp-btn').style.display = 'block';
+                    document.getElementById("premium").innerHTML = '';
+                    const premiumBadge = document.querySelector('.premium-badge');
+                    if (premiumBadge) premiumBadge.remove();
                 }
             })
             .catch(error => {
@@ -233,9 +246,13 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
             });
     }
 
-    document.addEventListener('DOMContentLoaded',function() {
+
+    document.addEventListener('DOMContentLoaded', function() {
         fetchExpenses();
         checkPremiumStatus();
-
     });
+
+
+
+
 

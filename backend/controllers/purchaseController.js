@@ -49,56 +49,39 @@ exports.purchasePremium = async (req, res) => {
   }
 };
 
-exports.updateTransactionStatus = async (orderId, paymentId) => {
- 
-    const userId = req.user.id;
-    const transaction = await sequelize.transaction();
-  try {
+exports.updateTransactionStatus = async (req, res) => {
+  const userId = req.user.id;
+  const { order_id, payment_id } = req.body;
+
+
+    try {
     const order = await Order.findOne({
-        where: { orderId, UserId: userId },
-      transaction }
+        where: { orderId:order_id, userId: userId },
+       }
     );
 
     if (!order) {
-             throw new Error(`Order not found for orderId: ${orderId} and userId: ${userId}`);
+             throw new Error(`Order not found for orderId: ${order_id} and userId: ${userId}`);
       }
 
       await Promise.all([
         order.update(
-          { paymentId, status: "SUCCESSFUL" },
-          { transaction }
+          {paymentId: payment_id, status: "SUCCESSFUL" }
+          
         ),
         User.update(
           { isPremium: true },
-          { where: { id: userId }, transaction }
+          { where: { id: userId } }
         )
       ]);
-    await transaction.commit();
     console.log(
-      `Transaction successful for orderId: ${orderId}, userId: ${userId}`
+      `Transaction successful for orderId: ${order_id}, userId: ${userId}`
     );
+    res.status(200).json({ message: "Transaction updated successfully" });
+
   } catch (error) {
-    await transaction.rollback();
-    console.error(`Transaction failed for orderId: ${orderId}, userId: ${userId}`,error);
-    throw error;
+    console.error(`Transaction failed for orderId: ${order_id}, userId: ${userId}`,error);
+    res.status(500).json({ error: "Transaction update failed", details: error.message });
   }
 };
 
-// exports.updateTransaction = async (req, res) => {
-//   try {
-//     const { order_id, payment_id } = req.body;
-
-//     const userId = req.user.id;
-//     if (!order_id || !payment_id) {
-//       return res.status(400).json({ error: "Missing order_id or payment_id" });
-//     }
-
-//     await updateTransactionStatus(order_id, payment_id, userId);
-//     res.status(202).json({ message: "Transaction successful" });
-//   } catch (error) {
-//     console.error("Error in updateTransaction:", error);
-//     res
-//       .status(500)
-//       .json({ error: "Something went wrong", details: error.message });
-//   }
-// };

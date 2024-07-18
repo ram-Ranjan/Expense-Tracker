@@ -1,4 +1,6 @@
 const Expense = require('../models/expense');
+const User = require('../models/user');
+
 
 
 exports.addExpense = async (req, res) => {
@@ -15,6 +17,11 @@ exports.addExpense = async (req, res) => {
         description,
         userId: req.user.id
       });
+
+      await User.increment('totalExpense', {
+        by:parseFloat(amount),
+        where: { id: req.user.id }
+    });
   
       console.log('New expense created:', newExpense.toJSON());
   
@@ -64,6 +71,14 @@ exports.getExpense = async (req, res) => {
 exports.updateExpense = async (req, res) => {
   try {
     const { category, amount, description } = req.body;
+    const oldExpense = await Expense.findOne({
+      where: { expenseId: req.params.expenseId, userId: req.user.id }
+  });
+  if (!oldExpense) {
+    return res.status(404).json({ message: 'Expense not found' });
+}
+const amountDifference = parseFloat(amount) - oldExpense.amount;
+
     const [updated] = await Expense.update(
       { category, amount, description },
       { where: { expenseId: req.params.expenseId,
@@ -71,12 +86,15 @@ exports.updateExpense = async (req, res) => {
        } }
     );
     if (updated) {
-      const updatedExpense = await Expense.findOne({
-        where: {
-            expenseId: req.params.expenseId,
-            userId: req.user.id
-        }
-    });
+      await User.increment('totalExpense', {
+        by: amountDifference,
+        where: { id: req.user.id }
+        });
+
+        const updatedExpense = await Expense.findOne({
+          where: { expenseId: req.params.expenseId, userId: req.user.id }
+      });
+
       res.status(200).json(updatedExpense);
     } else {
       res.status(404).json({ message: 'Expense not found' });
@@ -90,15 +108,66 @@ exports.updateExpense = async (req, res) => {
 exports.deleteExpense = async (req, res) => {
   try {
     console.log('Deleting expense with ID:', req.params.expenseId);
-    const deleted = await Expense.destroy({ where: { expenseId: req.params.expenseId,
-      userId: req.user.id } });
-    if (deleted) {
+    
+    const expense = await Expense.findOne({
+      where: { expenseId: req.params.expenseId, userId: req.user.id }
+  });
+
+  if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+  }
+  await expense.destroy();
+
+  await User.decrement('totalExpense', {
+      by: expense.amount,
+      where: { id: req.user.id }
+  });
+   
       res.status(204).send();
-    } else {
-      res.status(404).json({ message: 'Expense not found' });
-    }
+   
+   
   } catch (error) {
     console.error('Error deleting expense:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getLeaderBoard = async (req,res) => {
+  try{
+  //    const leaderboard=await User.findAll({
+  //         attributes:['id',
+  //             'username',
+  //           [Sequelize.fn('COALESCE', Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 0), 'totalExpenses']
+  //         ],           
+  //         include:[{
+  //             model: Expenses,
+  //             attributes:[],
+  //             required: false
+  //         }] ,
+  //         group:['User.id'],
+  //         order: [[Sequelize.fn('COALESCE', Sequelize.fn('SUM', Sequelize.col('Expenses.amount')), 0), 'DESC']],           
+  //         raw:true
+  //     });
+
+  const leaderboard = await User.findAll({
+      attributes: ['id', 'username', 'totalExpense'],
+      order: [['totalExpense', 'DESC']],
+      limit: 10 // Adjust as needed
+  });
+      // console.log(leaderboard)
+      const leaderboardWithHighlight = leaderboard.map(entry => ({
+
+          id:entry.id,
+          username:entry.username,
+          totalExpenses:entry.totalExpense,
+          isCurrentUser: entry.id === req.user.id
+      }));
+
+      res.json(leaderboardWithHighlight);
+    
+  }
+  catch(error){
+      console.error('Error fetching leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch leaderboard' });
+  }
+}

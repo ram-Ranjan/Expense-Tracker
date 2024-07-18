@@ -3,17 +3,17 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.TOKEN_SECRET; 
 
 exports.authenticateJWT = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (authHeader) {
-        const token = authHeader.split(' ')[1];
-        jwt.verify(token, JWT_SECRET, (err, user) => {
-            if (err) {
-                return res.sendStatus(403);
-            }
-            req.user = user;//Then only req will have authorised user
-            next();
-        });
-    } else {
-        res.sendStatus(401);
+    const token = req.header('Authorization')?.split(' ')[1];
+
+    if (token) {
+        return res.status(401).json({ error: 'No token provided' });
     }
+    try{
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+        req.user = decoded;  // This now includes isPremium
+        next();
+    }
+    catch (error) {
+        return res.status(403).json({ error: 'Invalid token' });
+      }
 };
