@@ -22,13 +22,21 @@ app.use('/api/expense',expenseRouter);
  const purchaseRouter = require('./routes/purchaseRoutes');
 app.use('/api/purchase',purchaseRouter);
 
+const passwordRouter = require('./routes/passwordRoutes');
+app.use('/api/password',passwordRouter);
+
 const Order = require('./models/orders');
+const ForgotPasswordRequest = require('./models/forgotPasswordRequests')
 
  User.hasMany(Expense);
  Expense.belongsTo(User);
 
  User.hasMany(Order);
- Order.belongsTo(User)
+ Order.belongsTo(User);
+
+ User.hasMany(ForgotPasswordRequest);
+ ForgotPasswordRequest.belongsTo(User);
+
 
 const port =  3000;
 sequelize.
