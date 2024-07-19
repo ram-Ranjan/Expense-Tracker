@@ -11,5 +11,5 @@ router.post('/login',userController.loginUser)
 
 router.get('/premium/premiumStatus', authenticateJWT, userController.checkPremiumStatus);
 
-
+router.post('/password/forgetPassword',userController.forgetPassword)
 module.exports=router;

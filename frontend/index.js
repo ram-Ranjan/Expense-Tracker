@@ -27,7 +27,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
     }
 });
     function addExpense(expense) {
-        axios.post(`${base_url}/expense`, expense , getAuthHeader())
+        axios.post(`${base_url}/expense/addExpense`, expense , getAuthHeader())
             .then(response => {
                 console.log('Server response:', response.data);
                 // alert("Expense added successfully!");
