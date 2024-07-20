@@ -141,6 +141,11 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
         window.location.href = 'login.html';
     }); 
 
+    function showErrorInDom(message){
+        let errorMessage = document.getElementById('errorMessage');
+        errorMessage.innerHTML=`${message}`
+    }
+
     document.querySelector('.rzp-btn').addEventListener('click', async function(e) {
        
         e.preventDefault();
@@ -296,12 +301,37 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                 console.error('Error fetching report:', err);
                 document.getElementById("report").innerHTML = `<p>Failed to load Report. Please try again later.</p>`;
             });
+
+            let downloadBtn =document.createElement('button');
+            downloadBtn.className='reportBtn';
+            downloadBtn.textContent='View Report';
+            document.querySelector('table').appendChild(downloadBtn);
+
+            downloadBtn.addEventListener(('click',() => {
+                downloadExpenses()
+            }))
         }
         else{
             report.style.display='none'
 
         }
        
+    }
+
+    function downloadExpenses(){
+        axios.get(`${base_url}/premium/downloadExpenses`,getAuthHeader())
+        .then((response) => {
+            const fileUrl =response.data;
+            window.open(fileUrl,'_blank');
+        })
+        .catch((err) => {
+            showErrorInDom(`Error: Couldn't got expense file!`)
+        })
+    }
+
+    function showErrorInDom(message){
+        let errorMessage = document.getElementById('errorMessage');
+        errorMessage.innerHTML=`${message}`
     }
 
     function checkPremiumStatus() {
