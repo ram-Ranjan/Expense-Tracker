@@ -103,6 +103,8 @@ button {
     transition: background-color 0.3s ease;
     margin-bottom: 4px;
 }
+ 
+
 
 .logout {
     position: absolute;
@@ -129,6 +131,8 @@ button {
     background-color: gold;
     color: rgb(109, 202, 17);
 }
+
+
 
 button:hover {
     background-color: #0056b3;
@@ -232,6 +236,7 @@ button:hover {
         max-width: none;
         margin-right: 0;
     }
+    
 
     #expenseForm {
         margin-bottom: 2rem;

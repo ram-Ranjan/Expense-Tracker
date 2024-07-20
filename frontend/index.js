@@ -186,6 +186,19 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
     function updateUIForPremiumUser() {
         // Hide the 'Become Premium' button
         document.querySelector('.rzp-btn').style.display = 'none';
+
+        let leaderboardBtn =document.createElement('button');
+        leaderboardBtn.className='leaderboardBtn';
+        leaderboardBtn.textContent='Show Leaderboard';
+        document.querySelector('table').appendChild(leaderboardBtn);
+        let premiumFeatures = document.getElementById("premium");
+        // premiumFeatures.style.display
+
+        let reportBtn =document.createElement('button');
+        reportBtn.className='reportBtn';
+        reportBtn.textContent='View Report';
+        document.querySelector('table').appendChild(reportBtn);
+        
         
         // Add premium badge if it doesn't exist
         if (!document.querySelector('.premium-badge')) {
@@ -193,18 +206,24 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
             premiumBadge.textContent = 'Premium User';
             premiumBadge.classList.add('premium-badge');
             document.querySelector('header').appendChild(premiumBadge);
+
         }
-    
-        // Fetch and display leaderboard
-        fetchLeaderboard();
+
+       leaderboardBtn.addEventListener('click',() => fetchLeaderboard())
+       reportBtn.addEventListener('click',() => fetchReport())
+
     }
 
 
     function fetchLeaderboard() {
-        axios.get(`${base_url}/expense/premium/leaderboard`, getAuthHeader())
+
+        let premiumFeatures = document.getElementById("premium");
+        if(premiumFeatures.style.display=='none'){
+            premiumFeatures.style.display='block'
+            axios.get(`${base_url}/expense/premium/leaderboard`, getAuthHeader())
             .then(response => {
                 let leaderboardData = response.data;
-                let premiumFeatures = document.getElementById("premium");
+              
                 premiumFeatures.innerHTML = `<h2>Expense Leaderboard</h2>`;
                 const table = document.createElement('table');
                 table.innerHTML = `
@@ -224,11 +243,65 @@ document.getElementById('expenseForm').addEventListener('submit', function(event
                     }
                 });
                 premiumFeatures.appendChild(table);
+               
             })
             .catch(err => {
                 console.error('Error fetching leaderboard:', err);
                 document.getElementById("premium").innerHTML = `<p>Failed to load leaderboard. Please try again later.</p>`;
             });
+        }
+        else{
+            premiumFeatures.style.display='none'
+
+        }
+       
+    }
+
+
+    function fetchReport() {
+
+        let report = document.getElementById("report");
+        if(report.style.display=='none'){
+            report.style.display='block'
+            axios.get(`${base_url}/expense/premium/report`, getAuthHeader())
+            .then(response => {
+                let reportData = response.data.reverse();
+              
+                report.innerHTML = `<h2>Show History (last 10)</h2>`;
+                const table = document.createElement('table');
+                table.innerHTML = `
+                <tr>
+                    <th>Rank</th>
+                    <th>Date</th> 
+                    <th>Description</th> 
+                    <th>Category</th>
+                    <th>Income</th>
+                    <th>Expense</th>
+                </tr>`;
+                reportData.forEach((entry, index) => {
+                    const row = table.insertRow();
+                    row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${entry.date}</td>
+                    <td>${entry.description}</td>
+                    <td>${entry.category}</td>
+                    <td>${entry.income}</td>
+                    <td>₹${entry.expense}</td>`; 
+                    
+                });
+                report.appendChild(table);
+               
+            })
+            .catch(err => {
+                console.error('Error fetching report:', err);
+                document.getElementById("report").innerHTML = `<p>Failed to load Report. Please try again later.</p>`;
+            });
+        }
+        else{
+            report.style.display='none'
+
+        }
+       
     }
 
     function checkPremiumStatus() {
