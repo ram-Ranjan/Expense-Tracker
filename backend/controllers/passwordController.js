@@ -16,18 +16,22 @@ exports.forgotPassword = async (req, res) => {
 
   try {
     const user = await User.findOne({
-      where: { email: email },transaction
+      where: { email: email },
+      transaction,
     });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     const resetId = uuidv4();
-    await ForgotPasswordRequest.create({
-      id: resetId,
-      userId: user.id,
-      isActive: true,
-    },{transaction});
+    await ForgotPasswordRequest.create(
+      {
+        id: resetId,
+        userId: user.id,
+        isActive: true,
+      },
+      { transaction }
+    );
 
     const resetUrl = `http://localhost:3000/api/password/resetPassword/${resetId}`;
 
@@ -38,7 +42,7 @@ exports.forgotPassword = async (req, res) => {
     const receivers = [
       {
         email: email,
-      }
+      },
     ];
 
     await tranEmailApi.sendTransacEmail({
@@ -64,19 +68,20 @@ exports.forgotPassword = async (req, res) => {
 
 exports.generateResetForm = async (req, res) => {
   let { resetId } = req.params;
-console.log(resetId)
+  console.log(resetId);
   try {
     let request = await ForgotPasswordRequest.findOne({
       where: { id: resetId, isActive: true },
     });
 
     if (!request) {
-        return res.status(404).json({ message: "Invalid or Expired reset link" });
-    
+      return res.status(404).json({ message: "Invalid or Expired reset link" });
     }
 
-    return res.redirect(`http://127.0.0.1:5500/frontend/resetPassword.html?resetId=${resetId}`);
-} catch (error) {
+    return res.redirect(
+      `http://127.0.0.1:5500/frontend/resetPassword.html?resetId=${resetId}`
+    );
+  } catch (error) {
     console.error("Error checking reset password request:", error);
     res.status(500).json({ message: "An error occurred" });
   }
@@ -94,8 +99,8 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!resetRequest) {
-        await transaction.rollback();
-        return res.status(400).json({ message: "Invalid or expired reset link" });
+      await transaction.rollback();
+      return res.status(400).json({ message: "Invalid or expired reset link" });
     }
     const user = await User.findOne({
       where: { id: resetRequest.userId },
@@ -103,15 +108,15 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!user) {
-        await transaction.rollback();
-        return res.status(404).json({ message: "User not found" });
+      await transaction.rollback();
+      return res.status(404).json({ message: "User not found" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await user.update({ password: hashedPassword }, {transaction});
+    await user.update({ password: hashedPassword }, { transaction });
 
-    await resetRequest.update({ isActive: false }, {transaction});
+    await resetRequest.update({ isActive: false }, { transaction });
 
     await transaction.commit();
     res.status(200).json({ message: "{Password successfully reset" });

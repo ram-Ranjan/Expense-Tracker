@@ -1,25 +1,47 @@
-const sequelize = require('../config/database')
+const sequelize = require("../config/database");
 
-const DataTypes = require('sequelize');
+const DataTypes = require("sequelize");
 
-const Expense = sequelize.define('expense',{
-    expenseId:{
-        type:DataTypes.INTEGER,
-        autoIncrement:true,
-        primaryKey:true
+const Expense = sequelize.define(
+  "expense",
+  {
+    expenseId: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
     },
     category: {
-        type: DataTypes.ENUM('Food', 'Groceries', 'Travelling', 'Fitness', 'Entertainment'),
-        allowNull: false
-      },
-      amount: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
-      },
-    description:{
-        type:DataTypes.STRING,
-        allowNull:false
-    }
-})
+      type: DataTypes.ENUM(
+        "Food",
+        "Groceries",
+        "Travelling",
+        "Fitness",
+        "Bill",
+        "Income",
+        "other"
+      ),
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    income: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+    },
+    spending: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+    },
+  },
+  {
+    timestamps: false, // This line removes createdAt and updatedAt
+  }
+);
 
-module.exports=Expense;
+module.exports = Expense;

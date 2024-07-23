@@ -1,33 +1,34 @@
 const Expense = require("../models/expense");
 const User = require("../models/user");
 const sequelize = require("../config/database");
+const s3Services = require('../services/awsS3Services')
 
 exports.addExpense = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    const { category, amount, description } = req.body;
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      throw new Error("Invalid amount");
-    }
+    const { date, category, description, income, spending } = req.body;
+
+    const parsedIncome = parseFloat(income) || 0;
+    const parsedSpending = parseFloat(spending) || 0;
     const newExpense = await Expense.create(
       {
+        date,
         category,
-        amount:parsedAmount,
         description,
+        income: parsedIncome,
+        spending: parsedSpending,
         userId: req.user.id,
       },
       { transaction }
     );
-    await User.increment(
-      "totalExpense",
-      {
-        by: parsedAmount,
-        where: { id: req.user.id },
-        transaction
-      }
-    );
+    console.log(newExpense);
+    const balanceChange = parsedIncome - parsedSpending;
+    await User.increment("totalBalance", {
+      by: balanceChange,
+      where: { id: req.user.id },
+      transaction,
+    });
 
     await transaction.commit();
     res.status(201).json(newExpense);
@@ -41,7 +42,7 @@ exports.getExpenses = async (req, res) => {
   try {
     const expenses = await Expense.findAll({
       where: { userId: req.user.id },
-      order: [["createdAt", "DESC"]],
+      order: [["date", "DESC"]],
     });
 
     res.status(200).json(expenses);
@@ -73,41 +74,45 @@ exports.getExpense = async (req, res) => {
 exports.updateExpense = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    const { category, amount, description } = req.body;
-    const parsedAmount = parseFloat(amount);
+    const { date, category, description, income, spending } = req.body;
 
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      throw new Error("Invalid amount");
-    }
+    const parsedIncome = parseFloat(income) || 0;
+    const parsedSpending = parseFloat(spending) || 0;
 
     const oldExpense = await Expense.findOne({
       where: { expenseId: req.params.expenseId, userId: req.user.id },
       transaction,
-      lock: transaction.LOCK.UPDATE
+      lock: transaction.LOCK.UPDATE,
     });
     if (!oldExpense) {
       throw new Error("Expense not found");
-     }
-    const amountDifference = parsedAmount - oldExpense.amount;
+    }
+    const balanceChange =
+      parsedIncome - parsedSpending - (oldExpense.income - oldExpense.spending);
 
     const [updatedExpense] = await Promise.all([
       Expense.update(
-      { category, amount:parsedAmount, description },
-      { where: { expenseId: req.params.expenseId,
-         userId: req.user.id },
-         transaction ,
-         returning: true
-      }),
-       User.increment(
-        "totalExpense",
         {
-          by: amountDifference,
-          where: { id: req.user.id },
-          transaction
-        })
-      ]);
-      await transaction.commit();
-      res.status(200).json(updatedExpense[0]);
+          date,
+          category,
+          description,
+          income: parsedIncome,
+          spending: parsedSpending,
+        },
+        {
+          where: { expenseId: req.params.expenseId, userId: req.user.id },
+          transaction,
+          returning: true,
+        }
+      ),
+      User.increment("totalBalance", {
+        by: balanceChange,
+        where: { id: req.user.id },
+        transaction,
+      }),
+    ]);
+    await transaction.commit();
+    res.status(200).json(updatedExpense[0]);
   } catch (error) {
     await transaction.rollback();
     console.error("Error updating expense:", error);
@@ -123,22 +128,22 @@ exports.deleteExpense = async (req, res) => {
     const expense = await Expense.findOne({
       where: { expenseId: req.params.expenseId, userId: req.user.id },
       transaction,
-      lock: transaction.LOCK.UPDATE
+      lock: transaction.LOCK.UPDATE,
     });
+
+    const balanceChange = expense.spending - expense.income;
 
     if (!expense) {
       throw new Error("Expense not found");
     }
     await Promise.all([
-     expense.destroy({ transaction }),
-      User.decrement(
-      "totalExpense",
-      {
-        by:  parseFloat(expense.amount),
+      expense.destroy({ transaction }),
+      User.increment("totalBalance", {
+        by: balanceChange,
         where: { id: req.user.id },
-        transaction
-      })
-  ]);
+        transaction,
+      }),
+    ]);
     await transaction.commit();
     res.status(204).send();
   } catch (error) {
@@ -165,15 +170,15 @@ exports.getLeaderBoard = async (req, res) => {
     //     });
 
     const leaderboard = await User.findAll({
-      attributes: ["id", "username", "totalExpense"],
-      order: [["totalExpense", "DESC"]],
-      limit: 10, // Adjust as needed
+      attributes: ["id", "username", "totalBalance"],
+      order: [["totalBalance", "DESC"]],
+      limit: 10,
     });
     // console.log(leaderboard)
     const leaderboardWithHighlight = leaderboard.map((entry) => ({
       id: entry.id,
       username: entry.username,
-      totalExpenses: entry.totalExpense,
+      totalBalance: entry.totalBalance,
       isCurrentUser: entry.id === req.user.id,
     }));
 
@@ -183,3 +188,6 @@ exports.getLeaderBoard = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch leaderboard" });
   }
 };
+
+
+

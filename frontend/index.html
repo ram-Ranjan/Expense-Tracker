@@ -1,71 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Expenses</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header>
-        <h1>Expense Tracker</h1>
+      <h1>Expense Tracker</h1>
     </header>
-    
-    <main>
-        <div id="errorMessage"></div>
-        <div class="content-wrapper">
-            <section id="expense-form-section">
-                <h2>Add New Expense</h2>
-                <br>
-                <button class="logout">Logout</button>
-                <form id="expenseForm">
-                    <div class="form-group">
-                        <label for="category">Expense Category:</label>
-                        <select name="category" id="category">
-                            <option value="Food">Food</option>
-                            <option value="Groceries">Groceries</option>
-                            <option value="Travelling">Travelling</option>
-                            <option value="Fitness">Fitness</option>
-                            <option value="Entertainment">Entertainment</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="amount">Amount:</label>
-                        <input type="number" name="amount" id="amount" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description:</label>
-                        <input type="text" name="description" id="description" required>
-                    </div>
-                    <button type="submit">Add Expense</button>
-                </form>
-            </section>
-            
-            <section class="list-section">
-                <h2>Expense List</h2>
-                <table class="table">
-                    <thead>
-                      <tr>
-                        <th scope="col">Category</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Actions</th>
 
-                      </tr>
-                    </thead>
-                    <tbody id="expenseList">
-                         <!-- Expenses will be dynamically added here -->
-                    </tbody>
-                </table>
-            </section>
-            <div id="premium"></div>
-            <div id="report"></div>
-        </div>
-        <button class="rzp-btn">Buy Premium</button>
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <main>
+      <div id="message"></div>
+      <div class="content-wrapper">
+        <section id="expense-form-section">
+          <h2>Add New Expense</h2>
+          <br />
+          <button class="logout">Logout</button>
+          <form id="expenseForm">
+            <div class="form-group">
+              <label for="date">Date:</label>
+              <input type="date" name="date" id="date" required />
+            </div>
+            <div class="form-group">
+              <label for="category">Expense Category:</label>
+              <select name="category" id="category">
+                <option value="Food">Food</option>
+                <option value="Groceries">Groceries</option>
+                <option value="Travelling">Travelling</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Bill">Bill</option>
+                <option value="Income">Income</option>
+                <option value="other">other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="transactionType">Transaction Type:</label>
+              <select name="transactionType" id="transactionType" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+              <label for="amount">Amount:</label>
+              <input type="number" name="amount" id="amount" step="0.01" required />
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <input type="text" name="description" id="description" required />
+            </div>
+            <button type="submit">Add Expense</button>
+          </form>
+        </section>
+
+        <section class="list-section">
+          <h2>Expense List</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Category</th>
+                <th scope="col">Description</th>
+                <th scope="col">Income</th>
+                <th scope="col">Expense</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expenseList">
+              <!-- Expenses will be dynamically added here -->
+            </tbody>
+          </table>
+        </section>
+        <button id="downloadBtn" style="display: none">
+          Download Expenses
+        </button>
+
         <div id="premium"></div>
+      </div>
+      <button class="rzp-btn">Buy Premium</button>
+      <div id="premium"></div>
     </main>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
     <script src="index.js"></script>
-</body>
+  </body>
 </html>
