@@ -53,6 +53,15 @@ h2 {
     justify-content: space-between;
 }
 
+a{
+    text-align: center;
+    text-decoration: none;
+    color: rgb(47, 47, 233);
+}
+a:hover{
+    color: #f7818d;
+}
+
 #expenseForm {
     width: 100%;
     max-width: 400px;
@@ -103,6 +112,7 @@ button {
     transition: background-color 0.3s ease;
     margin-bottom: 4px;
 }
+
  
 
 

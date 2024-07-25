@@ -38,17 +38,40 @@ exports.addExpense = async (req, res) => {
   }
 };
 
-exports.getExpenses = async (req, res) => {
+exports.getAllExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.findAll({
-      where: { userId: req.user.id },
+    const user = req.user;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const offset = (page - 1) * limit;
+
+    const { count, rows: expenses } = await Expense.findAndCountAll({
+      where: { userId: user.id },
       order: [["date", "DESC"]],
+      limit: limit,
+      offset: offset
     });
 
-    res.status(200).json(expenses);
-  } catch (error) {
-    console.error("Error fetching expenses:", error);
-    res.status(500).json({ message: error.message });
+    const totalPages = Math.ceil(count / limit);
+    const nextPage = page < totalPages ? page + 1 : null;
+    const prevPage = page > 1 ? page - 1 : null;
+
+    // const userFromDB = await User.findOne({ where: { id: user.id } });
+
+    res.status(200).json({
+      expenses: expenses,
+      currentPage: page,
+      nextPage: nextPage,
+      prevPage: prevPage,
+      totalPages: totalPages,
+      totalItems: count,
+      limit: limit,
+      // balance: userFromDB.balance
+    });
+  } catch (err) {
+    console.error('GET ALL EXPENSES ERROR', err);
+    res.status(500).json({ error: err.message, msg: 'Could not fetch expenses' });
   }
 };
 
