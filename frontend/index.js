@@ -166,6 +166,7 @@ function updatePagination(currentPage, limit, totalItems) {
     const prevButton = createPaginationButton("Prev", () =>
       fetchExpenses(currentPage - 1, limit)
     );
+    prevButton.disabled = currentPage === 1;
     paginationButtons.appendChild(prevButton);
   }
 
@@ -426,7 +427,11 @@ function checkPremiumStatus() {
     .catch((error) => console.error("Error checking premium status:", error));
 }
  
-
+const paginationLimit = document.getElementById("paginationLimit");
+  paginationLimit.addEventListener("change", (e) => {
+    itemsPerPage = parseInt(e.target.value);
+    fetchExpenses(1, itemsPerPage);
+  });
 
 
 document.addEventListener("DOMContentLoaded", () => {

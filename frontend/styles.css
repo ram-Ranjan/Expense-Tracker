@@ -14,9 +14,9 @@ body {
 }
 
 header {
-    background-color: #007bff;
+    background-color: #3f4347;
     color: white;
-    padding: 1rem 0;
+    padding: 1rem;
     text-align: center;
 }
 
@@ -33,6 +33,7 @@ main {
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    overflow: hidden;
 }
 
 h2 {
@@ -51,37 +52,32 @@ h2 {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    overflow: hidden;
 }
 
-a{
+a {
     text-align: center;
     text-decoration: none;
-    color: rgb(47, 47, 233);
+    color: rgb(77, 77, 214);
+    display: block;
+    margin: 1rem 0;
 }
-a:hover{
+
+a:hover {
     color: #f7818d;
 }
 
-#expenseForm {
+form {
     width: 100%;
     max-width: 400px;
-    margin-right: 2rem;
-    display: grid;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
-}
-
-#expense-list-section {
-    flex: 1;
-    min-width: 300px;
 }
 
 .form-group {
     margin-bottom: 1rem;
-}
-
-#expense-list-section h2 {
-    margin-right: 0;
-    text-align: left;
 }
 
 label {
@@ -96,14 +92,13 @@ input, select {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
-    margin-bottom: 0.5rem;
-
+    margin-bottom: .5rem;
 }
 
 button {
     width: 100%;
     padding: 0.75rem;
-    background-color: #007bff;
+    background-color: #7fb4ec;
     color: white;
     border: none;
     border-radius: 4px;
@@ -113,8 +108,9 @@ button {
     margin-bottom: 4px;
 }
 
- 
-
+button:hover {
+    background-color: #4b9bf1;
+}
 
 .logout {
     position: absolute;
@@ -142,33 +138,38 @@ button {
     color: rgb(109, 202, 17);
 }
 
-
-
-button:hover {
-    background-color: #0056b3;
-}
-
 .table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
     background-color: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    border-radius: 8px;
 }
 
 .table th,
 .table td {
+    
     padding: 0.75rem;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0;
+   /* // border-bottom: 1px solid #e0e0e0; */
 }
 
 .table th {
-    background-color: #f8f9fa;
+    
+    background-color: #3f4347;
     font-weight: 600;
-    color: #333;
+    color: #fff;
     text-transform: uppercase;
     font-size: 0.875rem;
+}
+.table th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.table th:last-child {
+    border-top-right-radius: 8px;
 }
 
 .table tbody tr:hover {
@@ -208,7 +209,7 @@ button:hover {
 }
 
 #premium th {
-    background-color: #007bff;
+    background-color: #333;
     color: white;
     font-weight: 600;
     text-transform: uppercase;
@@ -233,23 +234,93 @@ button:hover {
     text-align: center;
 }
 
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.pagination-controls .items-per-page {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.pagination-controls label {
+    margin-right: 0.5rem;
+    color: #666;
+}
+
+.pagination-controls select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    font-size: 0.875rem;
+}
+
+#paginationButtons button,
+#paginationButtons span {
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    color: #333;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#paginationButtons button:hover,
+#paginationButtons span:hover {
+    background-color: #f0f0f0;
+}
+
+#paginationButtons button.active,
+#paginationButtons span.active {
+    background-color: #3f4347;
+    color: white;
+    border-color: #007bff;
+}
+
+#paginationButtons button[disabled],
+#paginationButtons span[disabled] {
+    background-color: #e9ecef;
+    color: #6c757d;
+    border-color: #e9ecef;
+    cursor: not-allowed;
+}
+/* Responsive styles for pagination */
+@media screen and (max-width: 760px) {
+    .pagination {
+        flex-direction: column;
+    }
+
+    .pagination button,
+    .pagination span {
+        margin: 0.25rem 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .pagination .pagination-info {
+        margin-top: 0.5rem;
+    }
+}
+
 /* Responsive styles */
 @media screen and (max-width: 760px) {
     .content-wrapper {
         flex-direction: column;
     }
 
-    #expenseForm,
-    #expense-list-section,
-    #premium {
+    form, .content-wrapper {
         width: 100%;
         max-width: none;
-        margin-right: 0;
-    }
-    
-
-    #expenseForm {
-        margin-bottom: 2rem;
     }
 
     .table, .table tbody, .table tr, .table td {
@@ -281,5 +352,23 @@ button:hover {
         white-space: nowrap;
         text-align: left;
         font-weight: bold;
+    }
+    .pagination-controls {
+        flex-direction: column;
+    }
+
+    .pagination-controls .items-per-page {
+        margin-bottom: 1rem;
+    }
+
+    .pagination-controls select {
+        width: 100%;
+    }
+
+    #paginationButtons button,
+    #paginationButtons span {
+        margin: 0.25rem 0;
+        width: 100%;
+        text-align: center;
     }
 }

@@ -55,7 +55,7 @@
 
         <section class="list-section">
           <h2>Expense List</h2>
-          <table class="table">
+          <table class="table exp">
             <thead>
               <tr>
                 <th scope="col">Date</th>
@@ -70,21 +70,34 @@
               <!-- Expenses will be dynamically added here -->
             </tbody>
           </table>
-          
+          <br>
+
+          <div class="pagination-controls">
+            <div class="items-per-page">
+              <label for="paginationLimit">Items per page:</label>
+              <select id="paginationLimit">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+              </select>
+            </div>
             <div id="paginationButtons"></div>
+
           </div>
+          <button class="rzp-btn">Buy Premium</button>
+
+          <button id="downloadBtn" style="display: none">
+            Download Expenses
+          </button>
         </section>
 
-
+       
         </section>
-        <button id="downloadBtn" style="display: none">
-          Download Expenses
-        </button>
+        
 
         <div id="premium"></div>
       </div>
-      <button class="rzp-btn">Buy Premium</button>
-      <div id="premium"></div>
     </main>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
