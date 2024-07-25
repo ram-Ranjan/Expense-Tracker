@@ -1,7 +1,7 @@
 const base_url = "http://localhost:3000/api";
 
-let currentPage = 1;
-let itemsPerPage = 5;
+let currentPage = parseInt(localStorage.getItem("currentPage")) || 1;
+let itemsPerPage = parseInt(localStorage.getItem("itemsPerPage")) || 5;
 
 function getAuthHeader() {
   const token = localStorage.getItem("token");
@@ -120,6 +120,9 @@ function fetchExpenses(page = 1, limit = itemsPerPage) {
         expenseList.appendChild(row);
       })
       updatePagination(page, limit, totalItems);
+
+      localStorage.setItem("currentPage", page);
+      localStorage.setItem("itemsPerPage", limit);
 
       document
     .querySelectorAll(".edit-btn")
@@ -430,12 +433,14 @@ function checkPremiumStatus() {
 const paginationLimit = document.getElementById("paginationLimit");
   paginationLimit.addEventListener("change", (e) => {
     itemsPerPage = parseInt(e.target.value);
+    localStorage.setItem("itemsPerPage", itemsPerPage);
     fetchExpenses(1, itemsPerPage);
   });
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  fetchExpenses();
+  paginationLimit.value = itemsPerPage;
+  fetchExpenses(currentPage, itemsPerPage);
   checkPremiumStatus();
 });
 
